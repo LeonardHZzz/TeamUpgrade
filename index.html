@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ajedrez con Maia · Tu entrenador</title>
+  <meta name="description" content="Aprende ajedrez jugando contra Maia: te recomienda la mejor jugada y te explica por qué." />
+  <meta name="theme-color" content="#3b6e4f" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♞</text></svg>" />
+  <link rel="stylesheet" href="vendor/chessground/chessground.base.css" />
+  <link rel="stylesheet" href="vendor/chessground/chessground.brown.css" />
+  <link rel="stylesheet" href="vendor/chessground/chessground.cburnett.css" />
+  <link rel="stylesheet" href="css/estilo.css" />
+</head>
+<body>
+  <!-- Pantalla de inicio -->
+  <section id="inicio" class="pantalla activa" aria-labelledby="titulo">
+    <div class="inicio">
+      <h1 id="titulo" class="titulo"><span class="caballo" aria-hidden="true">♞</span> Ajedrez con <b>Maia</b></h1>
+      <p class="sub">Juega, recibe la mejor jugada y aprende por qué.</p>
+
+      <h2 class="paso-tit"><span class="num">1</span> ¿Cómo quieres jugar?</h2>
+      <div class="modos" role="radiogroup" aria-label="Modo de juego">
+        <button type="button" class="modo-op sel" data-modo="maia" role="radio" aria-checked="true">
+          <span class="modo-ico" aria-hidden="true">🤖</span><b>CONTRA MAIA</b><small>Tú mueves un color y Maia el otro</small>
+        </button>
+        <button type="button" class="modo-op" data-modo="libre" role="radio" aria-checked="false">
+          <span class="modo-ico" aria-hidden="true">♔♚</span><b>PRÁCTICA LIBRE</b><small>Tú mueves los dos colores; Maia te aconseja</small>
+        </button>
+      </div>
+
+      <h2 class="paso-tit"><span class="num">2</span> <span id="color-tit">¿Con qué color juegas?</span></h2>
+      <div class="colores" role="radiogroup" aria-label="Color">
+        <button type="button" class="color-op sel" data-color="w" role="radio" aria-checked="true">
+          <span class="rey blanco" aria-hidden="true">♔</span><b>BLANCAS</b><small id="sub-w">Empiezas tú</small>
+        </button>
+        <button type="button" class="color-op" data-color="b" role="radio" aria-checked="false">
+          <span class="rey negro" aria-hidden="true">♚</span><b>NEGRAS</b><small id="sub-b">Empieza Maia</small>
+        </button>
+      </div>
+
+      <h2 class="paso-tit"><span class="num">3</span> <span id="nivel-tit">Nivel de Maia</span></h2>
+      <div class="niveles" role="radiogroup" aria-label="Nivel de Maia">
+        <button type="button" class="nivel-op" data-elo="2100" role="radio" aria-checked="false">2100</button>
+        <button type="button" class="nivel-op sel" data-elo="2200" role="radio" aria-checked="true">2200</button>
+      </div>
+      <p class="nota">Maia es una inteligencia artificial que aprendió a jugar como las personas de ese nivel.</p>
+
+      <div class="como">
+        <div><span>✋</span>Arrastra o toca una pieza para moverla.</div>
+        <div><span class="flecha-verde">➜</span>La flecha verde es la jugada que te recomiendo.</div>
+        <div><span>💡</span>Lee (o escucha) por qué es buena.</div>
+      </div>
+
+      <div class="carga" id="carga">
+        <div class="barra"><i id="carga-barra"></i></div>
+        <span id="carga-txt">Preparando a Maia…</span>
+      </div>
+      <button type="button" id="btn-jugar" class="btn-jugar" disabled>▶ ¡A JUGAR!</button>
+    </div>
+  </section>
+
+  <!-- Partida -->
+  <section id="partida" class="pantalla" aria-label="Partida">
+    <header class="barra-sup">
+      <div class="marca"><span aria-hidden="true">♞</span> Ajedrez con Maia</div>
+      <div class="rivales">
+        <span class="tag" id="tag-yo">Tú</span><span class="vs" id="vs">contra</span><span class="tag maia" id="tag-maia">Maia 2200</span>
+      </div>
+      <div class="botones">
+        <button type="button" id="btn-maia-mueve" class="oculto" title="Que Maia mueva por el lado que tiene el turno">🤖 Que mueva Maia</button>
+        <button type="button" id="btn-girar" title="Girar el tablero">⇅ Girar</button>
+        <button type="button" id="btn-deshacer" title="Deshacer mi última jugada">↶ Deshacer</button>
+        <button type="button" id="btn-ayuda" class="activo" title="Mostrar u ocultar la jugada recomendada">💡 Pista</button>
+        <button type="button" id="btn-voz" class="activo" title="Voz">🔊</button>
+        <button type="button" id="btn-nueva" title="Nueva partida">⟲ Nueva</button>
+      </div>
+    </header>
+
+    <main class="juego">
+      <div class="col-tablero">
+        <div class="quien-gana" aria-label="¿Quién va ganando?">
+          <span id="eval-izq">Tú</span>
+          <div class="barra-eval"><i id="eval-yo"></i></div>
+          <span id="eval-der">Maia</span>
+        </div>
+        <div class="tablero-wrap"><div id="tablero" class="tablero"></div></div>
+        <div id="turno" class="turno" aria-live="polite"></div>
+      </div>
+
+      <aside class="col-entrenador" aria-label="Entrenador">
+        <div id="alerta" class="alerta oculto" aria-live="polite"></div>
+
+        <div id="tarjeta-calif" class="tarjeta tarjeta-calif oculto" aria-live="polite"></div>
+
+        <div id="tarjeta-maia" class="tarjeta tarjeta-maia oculto" aria-live="polite"></div>
+
+        <div id="tarjeta-rec" class="tarjeta tarjeta-rec">
+          <h2 id="rec-tit">💡 Jugada recomendada</h2>
+          <div id="rec-cuerpo"></div>
+        </div>
+
+        <details class="tarjeta opciones" id="tarjeta-opciones">
+          <summary>Otras jugadas que elegirían jugadores de <span id="op-elo">2200</span></summary>
+          <ol id="opciones"></ol>
+        </details>
+
+        <div class="tarjeta">
+          <h3>Jugadas <span id="estrellas" class="estrellas"></span></h3>
+          <ol id="historial" class="historial"></ol>
+        </div>
+      </aside>
+    </main>
+    <p class="credito">Maia-3 (CSSLab, Univ. de Toronto) · Stockfish 17.1 · chessground (lichess) · Licencia GPL-3</p>
+  </section>
+
+  <!-- Fin de partida -->
+  <div id="fin" class="modal" role="dialog" aria-modal="true" aria-labelledby="fin-tit">
+    <div class="modal-caja">
+      <div id="fin-icono" class="fin-icono"></div>
+      <h2 id="fin-tit"></h2>
+      <p id="fin-txt"></p>
+      <div class="modal-botones">
+        <button type="button" id="fin-otra" class="btn-jugar">Jugar otra vez</button>
+        <button type="button" id="fin-ver">Ver el tablero</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

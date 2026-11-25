@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: ajedrez-maia
+    runtime: static
+    buildCommand: echo "sitio estatico"
+    staticPublishPath: .
+    headers:
+      - path: /modelos/*
+        name: Cache-Control
+        value: public, max-age=604800
+      - path: /vendor/*
+        name: Cache-Control
+        value: public, max-age=604800
